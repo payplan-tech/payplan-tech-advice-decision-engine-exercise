@@ -1,0 +1,20 @@
+gui/src/components/RuleCanvas.tsx
+  s_905524bc6dc938::t_b4f62d776a0f37 34,144,265-267,293,363-373
+  s_905524bc6dc938::t_5d628f8bb39617 278-281
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "4d8c57acbbf620b0932ff0c53cdc466be936c09d",
+  "prompts": {},
+  "sessions": {
+    "s_905524bc6dc938": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "967b8903-e34c-4e10-ab8c-c1d64b952b39",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
