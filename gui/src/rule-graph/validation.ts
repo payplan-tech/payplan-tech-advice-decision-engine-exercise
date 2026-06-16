@@ -45,7 +45,12 @@ export function validateNode(
         warnings.push(`${content.field} was not found in the current input sample.`);
       }
 
-      if (incoming.length > 0) {
+      const incomingRuleEdges = incoming.filter((edge) => {
+        const sourceNode = graph.nodes.find((candidate) => candidate.id === edge.sourceId);
+        return sourceNode?.type !== "input";
+      });
+
+      if (incomingRuleEdges.length > 0) {
         errors.push("Condition nodes cannot have incoming rule edges.");
       }
 

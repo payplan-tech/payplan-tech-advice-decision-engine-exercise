@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Background,
   Controls,
@@ -30,10 +31,22 @@ type RuleCanvasProps = {
 type RuleFlowData = {
   graphNode: RuleGraphNode;
   validation: NodeValidation;
+  pendingConnectionSourceId?: string;
+  onCancelConnection: () => void;
+  onCompleteConnection: (targetId: string) => void;
+  onStartConnection: (sourceId: string) => void;
 };
 
 const nodeTypes = {
   ruleNode: RuleNode,
+};
+
+const ruleNodeDimensions: Record<RuleGraphNode["type"], { width: number; height: number }> = {
+  input: { width: 190, height: 100 },
+  condition: { width: 190, height: 86 },
+  logic: { width: 190, height: 86 },
+  result: { width: 190, height: 86 },
+  note: { width: 190, height: 100 },
 };
 
 export function RuleCanvas({
@@ -43,16 +56,9 @@ export function RuleCanvas({
   onSelectedNodeChange,
   onAddNode,
 }: RuleCanvasProps) {
-  const nodes: Node<RuleFlowData>[] = graph.nodes.map((node) => ({
-    id: node.id,
-    type: "ruleNode",
-    position: node.position,
-    selected: node.id === selectedNodeId,
-    data: {
-      graphNode: node,
-      validation: validateNode(node, graph),
-    },
-  }));
+  const [pendingConnectionSourceId, setPendingConnectionSourceId] = useState<
+    string | undefined
+  >();
 
   const edges: Edge[] = graph.edges.map((edge) => ({
     id: edge.id,
@@ -89,26 +95,28 @@ export function RuleCanvas({
   };
 
   const onNodesChange = (changes: NodeChange[]) => {
-    const updatedNodes = applyNodeChanges(changes, nodes);
     const removedIds = changes
       .filter((change) => change.type === "remove")
       .map((change) => change.id);
+    const hasPositionChange = changes.some(
+      (change) => change.type === "position" && change.position,
+    );
 
-    onGraphChange({
-      nodes: graph.nodes
-        .filter((node) => !removedIds.includes(node.id))
-        .map((graphNode) => {
-          const flowNode = updatedNodes.find((node) => node.id === graphNode.id);
-          return flowNode
-            ? { ...graphNode, position: flowNode.position }
-            : graphNode;
-        }),
-      edges: graph.edges.filter(
-        (edge) =>
-          !removedIds.includes(edge.sourceId) &&
-          !removedIds.includes(edge.targetId),
-      ),
-    });
+    if (removedIds.length > 0) {
+      onGraphChange({
+        nodes: graph.nodes.filter((node) => !removedIds.includes(node.id)),
+        edges: graph.edges.filter(
+          (edge) =>
+            !removedIds.includes(edge.sourceId) &&
+            !removedIds.includes(edge.targetId),
+        ),
+      });
+      return;
+    }
+
+    if (hasPositionChange) {
+      updateFromFlowNodes(applyNodeChanges(changes, flowNodes));
+    }
   };
 
   const onEdgesChange = (changes: EdgeChange[]) => {
@@ -132,12 +140,13 @@ export function RuleCanvas({
       return false;
     }
 
-    const sourceCanConnect =
-      sourceNode.type === "condition" || sourceNode.type === "logic";
-    const targetCanConnect =
-      targetNode.type === "logic" || targetNode.type === "result";
+    const canConnectInputToCondition =
+      sourceNode.type === "input" && targetNode.type === "condition";
+    const canConnectRuleNodes =
+      (sourceNode.type === "condition" || sourceNode.type === "logic") &&
+      (targetNode.type === "logic" || targetNode.type === "result");
 
-    if (!sourceCanConnect || !targetCanConnect) {
+    if (!canConnectInputToCondition && !canConnectRuleNodes) {
       return false;
     }
 
@@ -148,6 +157,32 @@ export function RuleCanvas({
         (edge.sourceHandle ?? null) === (connection.sourceHandle ?? null) &&
         (edge.targetHandle ?? null) === (connection.targetHandle ?? null),
     );
+  };
+
+  const addGraphEdge = (sourceId: string | undefined, targetId: string) => {
+    const connection: Connection = {
+      source: sourceId ?? null,
+      target: targetId,
+      sourceHandle: null,
+      targetHandle: null,
+    };
+
+    if (!isValidConnection(connection)) {
+      return;
+    }
+
+    onGraphChange({
+      ...graph,
+      edges: [
+        ...graph.edges,
+        {
+          id: crypto.randomUUID(),
+          sourceId: sourceId ?? "",
+          targetId,
+        },
+      ],
+    });
+    setPendingConnectionSourceId(undefined);
   };
 
   const onConnect: OnConnect = (connection) => {
@@ -165,6 +200,18 @@ export function RuleCanvas({
     );
     updateFromFlowEdges(updatedEdges);
   };
+
+  const flowNodes = graph.nodes.map((node) =>
+    graphNodeToFlowNode(node, graph, {
+      onCancelConnection: () => setPendingConnectionSourceId(undefined),
+      onCompleteConnection: (targetId) => {
+        addGraphEdge(pendingConnectionSourceId, targetId);
+      },
+      onStartConnection: (sourceId) => setPendingConnectionSourceId(sourceId),
+      pendingConnectionSourceId,
+      selectedNodeId,
+    }),
+  );
 
   return (
     <section className="canvas-shell">
@@ -189,7 +236,7 @@ export function RuleCanvas({
 
       <div className="canvas">
         <ReactFlow
-          nodes={nodes}
+          nodes={flowNodes}
           edges={edges}
           nodeTypes={nodeTypes}
           fitView
@@ -199,7 +246,6 @@ export function RuleCanvas({
           onNodeClick={(_, node) => onSelectedNodeChange(node.id)}
           onNodesChange={onNodesChange}
           onPaneClick={() => onSelectedNodeChange(undefined)}
-          onNodeDragStop={(_, __, updatedNodes) => updateFromFlowNodes(updatedNodes)}
         >
           <Background gap={20} />
           <Controls />
@@ -209,10 +255,59 @@ export function RuleCanvas({
   );
 }
 
+function graphNodeToFlowNode(
+  node: RuleGraphNode,
+  graph: RuleGraph,
+  options: {
+    pendingConnectionSourceId?: string;
+    selectedNodeId?: string;
+    onCancelConnection: () => void;
+    onCompleteConnection: (targetId: string) => void;
+    onStartConnection: (sourceId: string) => void;
+  },
+): Node<RuleFlowData> {
+  const dimensions = ruleNodeDimensions[node.type];
+
+  return {
+    id: node.id,
+    type: "ruleNode",
+    position: node.position,
+    width: dimensions.width,
+    height: dimensions.height,
+    selected: node.id === options.selectedNodeId,
+    data: {
+      graphNode: node,
+      onCancelConnection: options.onCancelConnection,
+      onCompleteConnection: options.onCompleteConnection,
+      onStartConnection: options.onStartConnection,
+      pendingConnectionSourceId: options.pendingConnectionSourceId,
+      validation: validateNode(node, graph),
+    },
+  };
+}
+
 function RuleNode({ data, selected }: NodeProps<RuleFlowData>) {
-  const { graphNode, validation } = data;
-  const canReceive = graphNode.type === "logic" || graphNode.type === "result";
-  const canSend = graphNode.type === "condition" || graphNode.type === "logic";
+  const {
+    graphNode,
+    onCancelConnection,
+    onCompleteConnection,
+    onStartConnection,
+    pendingConnectionSourceId,
+    validation,
+  } = data;
+  const canReceive =
+    graphNode.type === "condition" ||
+    graphNode.type === "logic" ||
+    graphNode.type === "result";
+  const canSend =
+    graphNode.type === "input" ||
+    graphNode.type === "condition" ||
+    graphNode.type === "logic";
+  const isPendingConnectionSource = pendingConnectionSourceId === graphNode.id;
+  const canCompletePendingConnection =
+    Boolean(pendingConnectionSourceId) &&
+    pendingConnectionSourceId !== graphNode.id &&
+    canReceive;
 
   return (
     <div
@@ -230,6 +325,37 @@ function RuleNode({ data, selected }: NodeProps<RuleFlowData>) {
       {validation.errors.length > 0 && (
         <small>{validation.errors[0]}</small>
       )}
+      <div className="rule-node-actions">
+        {canSend && (
+          <button
+            type="button"
+            className="rule-node-link-button"
+            onClick={(event) => {
+              event.stopPropagation();
+              if (isPendingConnectionSource) {
+                onCancelConnection();
+                return;
+              }
+
+              onStartConnection(graphNode.id);
+            }}
+          >
+            {isPendingConnectionSource ? "Cancel link" : "Link from"}
+          </button>
+        )}
+        {canCompletePendingConnection && (
+          <button
+            type="button"
+            className="rule-node-link-button rule-node-link-button-primary"
+            onClick={(event) => {
+              event.stopPropagation();
+              onCompleteConnection(graphNode.id);
+            }}
+          >
+            Connect here
+          </button>
+        )}
+      </div>
       {canSend && <Handle type="source" position={Position.Right} />}
     </div>
   );
