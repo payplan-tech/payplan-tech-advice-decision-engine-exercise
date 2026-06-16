@@ -1,122 +1,166 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import "reactflow/dist/style.css";
+
+import "./App.css";
+import { EvaluatorPanel } from "./components/EvaluatorPanel";
+import { NodeInspector } from "./components/NodeInspector";
+import { RuleCanvas } from "./components/RuleCanvas";
+import { defaultSampleJson, initialRuleGraph } from "./rule-graph/sample";
+import type { RuleGraph, RuleGraphNode } from "./rule-graph/types";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [graph, setGraph] = useState<RuleGraph>(initialRuleGraph);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(
+    "condition-age",
+  );
+
+  const addNode = (type: RuleGraphNode["type"]) => {
+    const id = `${type}-${crypto.randomUUID()}`;
+    setGraph((currentGraph) => {
+      const node = createNode(type, id, currentGraph.nodes);
+
+      return {
+        ...currentGraph,
+        nodes: [...currentGraph.nodes, node],
+      };
+    });
+    setSelectedNodeId(id);
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <main className="app">
+      <header className="app-header">
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
+          <p className="eyebrow">Rules engine GUI prototype</p>
+          <h1>Rule Canvas</h1>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        <p>
+          Compose nodes visually, compile them to the existing rule AST, and
+          evaluate against sample input.
+        </p>
+      </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <div className="workspace">
+        <RuleCanvas
+          graph={graph}
+          selectedNodeId={selectedNodeId}
+          onAddNode={addNode}
+          onGraphChange={setGraph}
+          onSelectedNodeChange={setSelectedNodeId}
+        />
+        <NodeInspector
+          graph={graph}
+          selectedNodeId={selectedNodeId}
+          onGraphChange={setGraph}
+        />
+        <EvaluatorPanel graph={graph} />
+      </div>
+    </main>
+  );
 }
 
-export default App
+const nodeStartPositions: Record<RuleGraphNode["type"], { x: number; y: number }> = {
+  input: { x: 0, y: 80 },
+  condition: { x: 280, y: 0 },
+  logic: { x: 600, y: 0 },
+  result: { x: 880, y: 0 },
+  note: { x: 0, y: 340 },
+};
+
+const nodeColumnWidth = 220;
+const nodeRowHeight = 140;
+const nodeCollisionHeight = 120;
+
+function createNode(
+  type: RuleGraphNode["type"],
+  id: string,
+  existingNodes: RuleGraphNode[],
+): RuleGraphNode {
+  const position = findOpenPosition(type, existingNodes);
+
+  switch (type) {
+    case "input":
+      return {
+        id,
+        type,
+        name: "Input",
+        position,
+        content: {
+          sampleJson: defaultSampleJson,
+          schemaMode: "infer-from-sample",
+          fields: [],
+        },
+      };
+    case "condition":
+      return {
+        id,
+        type,
+        name: "Condition",
+        position,
+        content: {
+          operator: "eq",
+          field: "role",
+          value: "admin",
+        },
+      };
+    case "logic":
+      return {
+        id,
+        type,
+        name: "Logic",
+        position,
+        content: {
+          operator: "and",
+        },
+      };
+    case "result":
+      return {
+        id,
+        type,
+        name: "Result",
+        position,
+        content: {
+          label: "Decision result",
+        },
+      };
+    case "note":
+      return {
+        id,
+        type,
+        name: "Note",
+        position,
+        content: {
+          text: "Document the rule here.",
+        },
+      };
+    default: {
+      const exhaustive: never = type;
+      return exhaustive;
+    }
+  }
+}
+
+function findOpenPosition(
+  type: RuleGraphNode["type"],
+  existingNodes: RuleGraphNode[],
+) {
+  const startPosition = nodeStartPositions[type];
+  let nextY = startPosition.y;
+
+  while (
+    existingNodes.some(
+      (node) =>
+        Math.abs(node.position.x - startPosition.x) < nodeColumnWidth &&
+        Math.abs(node.position.y - nextY) < nodeCollisionHeight,
+    )
+  ) {
+    nextY += nodeRowHeight;
+  }
+
+  return {
+    x: startPosition.x,
+    y: nextY,
+  };
+}
+
+export default App;
