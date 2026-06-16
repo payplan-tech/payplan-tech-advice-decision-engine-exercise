@@ -1,5 +1,5 @@
 import type { DecisionEngine, DecisionInput } from "./ports.ts";
-import type { Rule } from "./rule.ts";
+import { isAndRule, isEqRule, isGteRule, isInRule, type Rule } from "./rule.ts";
 
 function getFieldValue(value: DecisionInput, path: string): unknown {
   return path.split(".").reduce<unknown>((current, segment) => {
@@ -12,7 +12,7 @@ function getFieldValue(value: DecisionInput, path: string): unknown {
 }
 
 function evaluateExpr(rule: Rule, value: DecisionInput): boolean {
-  if (rule.gte) {
+  if (isGteRule(rule)) {
     const [field, threshold] = rule.gte;
     const fieldValue = getFieldValue(value, field);
     return typeof fieldValue === "number" && typeof threshold === "number"
@@ -20,18 +20,18 @@ function evaluateExpr(rule: Rule, value: DecisionInput): boolean {
       : Number(fieldValue) >= Number(threshold);
   }
 
-  if (rule.eq) {
+  if (isEqRule(rule)) {
     const [field, expected] = rule.eq;
     return getFieldValue(value, field) === expected;
   }
 
-  if (rule.in) {
+  if (isInRule(rule)) {
     const [item, field] = rule.in;
     const list = getFieldValue(value, field);
     return Array.isArray(list) && list.includes(item);
   }
 
-  if (rule.and) {
+  if (isAndRule(rule)) {
     return rule.and.every((subRule) => evaluateExpr(subRule, value));
   }
 
