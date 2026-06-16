@@ -67,7 +67,8 @@
 .palette button,
 .inspector input,
 .inspector select,
-.inspector textarea {
+.inspector textarea,
+.evaluator textarea {
   width: 100%;
 }
 
@@ -107,7 +108,8 @@
 
 .inspector input,
 .inspector select,
-.inspector textarea {
+.inspector textarea,
+.evaluator textarea {
   box-sizing: border-box;
   padding: 9px 10px;
   border: 1px solid #cfd6e6;
@@ -119,9 +121,14 @@
 }
 
 .inspector textarea,
+.evaluator textarea,
 .evaluator pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
+}
+
+.evaluator textarea {
+  resize: vertical;
 }
 
 .rule-node {
@@ -292,4 +299,28 @@
 .result-pill.fail {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.recommendation-card {
+  padding: 12px;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 800;
+}
+
+.branch-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.branch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
 }

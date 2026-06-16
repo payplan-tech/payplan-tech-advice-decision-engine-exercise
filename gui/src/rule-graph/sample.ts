@@ -1,16 +1,19 @@
 import type { RuleGraph } from "./types";
 
 export const defaultSampleInput = {
-  name: "John Doe",
-  age: 28,
-  role: "admin",
-  email: "john@company.com",
-  permissions: ["read", "write", "delete"],
-  account: {
-    status: "active",
-    permissions: ["read", "write"],
-    loginCount: 12,
-    deletedAt: null,
+  vulcanId: "VUL-12345",
+  creditProfile: {
+    surplus: 125,
+    totalUnsecuredDebt: 12000,
+  },
+  creditSearch: {
+    totalLinesOfCredit: 4,
+  },
+  debts: {
+    creditorNames: ["Example Bank", "Example Card"],
+  },
+  decisionInputs: {
+    repaymentTermYears: 8,
   },
 };
 
@@ -30,54 +33,54 @@ export const initialRuleGraph: RuleGraph = {
       },
     },
     {
-      id: "condition-age",
+      id: "condition-surplus",
       type: "condition",
-      name: "Age check",
+      name: "Surplus at least GBP 50",
       position: { x: 280, y: 0 },
       content: {
         operator: "gte",
-        field: "age",
-        value: 18,
+        field: "creditProfile.surplus",
+        value: 50,
       },
     },
     {
-      id: "condition-role",
+      id: "condition-debt",
       type: "condition",
-      name: "Role check",
+      name: "Debt at least GBP 6,000",
       position: { x: 280, y: 140 },
       content: {
-        operator: "eq",
-        field: "role",
-        value: "admin",
+        operator: "gte",
+        field: "creditProfile.totalUnsecuredDebt",
+        value: 6000,
       },
     },
     {
-      id: "condition-permission",
+      id: "condition-repayment-term",
       type: "condition",
-      name: "Permission check",
+      name: "Repayment term at least 4.9 years",
       position: { x: 280, y: 280 },
       content: {
-        operator: "in",
-        item: "write",
-        field: "permissions",
+        operator: "gte",
+        field: "decisionInputs.repaymentTermYears",
+        value: 4.9,
       },
     },
     {
-      id: "logic-and",
+      id: "logic-iva",
       type: "logic",
-      name: "All checks",
+      name: "IVA eligibility",
       position: { x: 600, y: 140 },
       content: {
         operator: "and",
       },
     },
     {
-      id: "result-access",
+      id: "result-recommendation",
       type: "result",
       name: "Result",
       position: { x: 880, y: 140 },
       content: {
-        label: "Can access?",
+        label: "Recommend IVA?",
       },
     },
     {
@@ -86,30 +89,45 @@ export const initialRuleGraph: RuleGraph = {
       name: "Note",
       position: { x: 0, y: 340 },
       content: {
-        text: "Build rules left to right. Notes do not compile.",
+        text: "AD-28 branch example. Useful Guide is the priority branch when surplus < 35, total unsecured debt < 3000, or total lines of credit <= 1. DMP applies when surplus >= 35 and debt >= 3000 after the IVA branch fails.",
       },
     },
   ],
   edges: [
     {
-      id: "edge-age-and",
-      sourceId: "condition-age",
-      targetId: "logic-and",
+      id: "edge-input-surplus",
+      sourceId: "input-1",
+      targetId: "condition-surplus",
     },
     {
-      id: "edge-role-and",
-      sourceId: "condition-role",
-      targetId: "logic-and",
+      id: "edge-input-debt",
+      sourceId: "input-1",
+      targetId: "condition-debt",
     },
     {
-      id: "edge-permission-and",
-      sourceId: "condition-permission",
-      targetId: "logic-and",
+      id: "edge-input-repayment-term",
+      sourceId: "input-1",
+      targetId: "condition-repayment-term",
     },
     {
-      id: "edge-and-result",
-      sourceId: "logic-and",
-      targetId: "result-access",
+      id: "edge-surplus-iva",
+      sourceId: "condition-surplus",
+      targetId: "logic-iva",
+    },
+    {
+      id: "edge-debt-iva",
+      sourceId: "condition-debt",
+      targetId: "logic-iva",
+    },
+    {
+      id: "edge-repayment-term-iva",
+      sourceId: "condition-repayment-term",
+      targetId: "logic-iva",
+    },
+    {
+      id: "edge-iva-result",
+      sourceId: "logic-iva",
+      targetId: "result-recommendation",
     },
   ],
 };

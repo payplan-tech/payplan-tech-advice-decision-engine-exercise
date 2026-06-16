@@ -12,7 +12,9 @@ Work through this on your own first. Ask questions in the channel, pair if you'r
 
 ## What to build
 
-Given a data object and a declarative rule, return whether the rule passes.
+Given a data object and a declarative rule, return whether the rule passes. The
+sample domain mirrors AD-27/AD-28: Vulcan I&E and debt data is normalized before
+the rule engine recommends a debt-solution branch.
 
 Implement:
 
@@ -23,12 +25,18 @@ Implement:
 ## Sample data
 
 ```ts
-const user = {
-  name: "John Doe",
-  age: 28,
-  role: "admin",
-  email: "john@company.com",
-  permissions: ["read", "write", "delete"],
+const decisionInput = {
+  vulcanId: "VUL-12345",
+  creditProfile: {
+    surplus: 125,
+    totalUnsecuredDebt: 12000,
+  },
+  creditSearch: {
+    totalLinesOfCredit: 4,
+  },
+  decisionInputs: {
+    repaymentTermYears: 8,
+  },
 };
 ```
 
@@ -44,20 +52,23 @@ const user = {
 ## Target API
 
 ```ts
-const canAccess = rules.and(
-  rules.gte("age", 18),
-  rules.eq("role", "admin"),
-  rules.in("write", "permissions"),
+const ivaEligible = rules.and(
+  rules.gte("creditProfile.surplus", 50),
+  rules.gte("creditProfile.totalUnsecuredDebt", 6000),
+  rules.gte("decisionInputs.repaymentTermYears", 4.9),
 );
 
-engine.evaluateExpr(canAccess, user); // true
+engine.evaluateExpr(ivaEligible, decisionInput); // true
 ```
 
 Helpers should produce the equivalent of hand-written rule objects:
 
 ```ts
-rules.and(rules.gte("age", 18), rules.eq("role", "admin"));
-// → { and: [{ gte: ["age", 18] }, { eq: ["role", "admin"] }] }
+rules.and(
+  rules.gte("creditProfile.surplus", 50),
+  rules.gte("creditProfile.totalUnsecuredDebt", 6000),
+);
+// -> { and: [{ gte: ["creditProfile.surplus", 50] }, { gte: ["creditProfile.totalUnsecuredDebt", 6000] }] }
 ```
 
 ## Requirements
@@ -73,22 +84,22 @@ rules.and(rules.gte("age", 18), rules.eq("role", "admin"));
 Your solution should pass these cases:
 
 ```ts
-engine.evaluateExpr(rules.gte("age", 18), user)                          // true
-engine.evaluateExpr(rules.eq("role", "guest"), user)                    // false
-engine.evaluateExpr(rules.in("write", "permissions"), user)              // true
-engine.evaluateExpr(rules.in("admin", "permissions"), user)              // false
+engine.evaluateExpr(rules.lt("creditProfile.surplus", 35), decisionInput)                 // false
+engine.evaluateExpr(rules.gte("creditProfile.totalUnsecuredDebt", 6000), decisionInput)    // true
+engine.evaluateExpr(rules.lte("creditSearch.totalLinesOfCredit", 1), decisionInput)        // false
 
 engine.evaluateExpr(
   rules.and(
-    rules.gte("age", 18),
-    rules.eq("role", "admin"),
-    rules.in("write", "permissions"),
+    rules.gte("creditProfile.surplus", 50),
+    rules.gte("creditProfile.totalUnsecuredDebt", 6000),
+    rules.gte("decisionInputs.repaymentTermYears", 4.9),
   ),
-  user,
+  decisionInput,
 ); // true
 ```
 
-Changing `user.role` to `"guest"` should make the combined rule fail.
+Changing `decisionInputs.repaymentTermYears` below `4.9` should make the IVA
+rule fail. The category order is Useful Guide first, then IVA, then DMP.
 
 ## How to approach it
 

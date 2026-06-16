@@ -2,17 +2,19 @@ import { staticDecisionDataAdapter } from "./adapters/static-data.ts";
 import { engine } from "./engine.ts";
 import { rules } from "./rule.ts";
 
-const user = {
-  name: "John Doe",
-  age: 28,
-  role: "admin",
-  email: "john@company.com",
-  permissions: ["read", "write", "delete"],
-  account: {
-    status: "active",
-    permissions: ["read", "write"],
-    loginCount: 12,
-    deletedAt: null,
+type DebtSolutionRecommendation = "Useful Guide" | "IVA" | "DMP";
+
+const debtDecisionInput = {
+  vulcanId: "VUL-12345",
+  creditProfile: {
+    surplus: 125,
+    totalUnsecuredDebt: 12000,
+  },
+  creditSearch: {
+    totalLinesOfCredit: 4,
+  },
+  decisionInputs: {
+    repaymentTermYears: 8,
   },
 };
 
@@ -30,79 +32,95 @@ function assertEqual<T>(actual: T, expected: T, message?: string) {
   );
 }
 
-const isAdult = rules.gte("age", 18);
-
-console.log(isAdult);
-
-const canAccess = rules.and(
-  rules.gte("age", 18),
-  rules.eq("role", "admin"),
-  rules.in("write", "permissions"),
+const usefulGuideRule = rules.or(
+  rules.lt("creditProfile.surplus", 35),
+  rules.lt("creditProfile.totalUnsecuredDebt", 3000),
+  rules.lte("creditSearch.totalLinesOfCredit", 1),
 );
 
-const canAccessAccount = rules.and(
-  rules.eq("account.status", "active"),
-  rules.in("write", "account.permissions"),
+const ivaRule = rules.and(
+  rules.gte("creditProfile.surplus", 50),
+  rules.gte("creditProfile.totalUnsecuredDebt", 6000),
+  rules.gte("decisionInputs.repaymentTermYears", 4.9),
 );
 
-console.dir(canAccessAccount, { depth: null });
+const dmpRule = rules.and(
+  rules.gte("creditProfile.surplus", 35),
+  rules.gte("creditProfile.totalUnsecuredDebt", 3000),
+  rules.not(ivaRule),
+);
 
-assertEqual(isAdult, { gte: ["age", 18] });
+console.dir(ivaRule, { depth: null });
 
-assertEqual(canAccess, {
-  and: [
-    { gte: ["age", 18] },
-    { eq: ["role", "admin"] },
-    { in: ["write", "permissions"] },
+assertEqual(usefulGuideRule, {
+  or: [
+    { lt: ["creditProfile.surplus", 35] },
+    { lt: ["creditProfile.totalUnsecuredDebt", 3000] },
+    { lte: ["creditSearch.totalLinesOfCredit", 1] },
   ],
 });
-assertEqual(rules.or(rules.eq("role", "admin"), rules.eq("role", "owner")), {
-  or: [{ eq: ["role", "admin"] }, { eq: ["role", "owner"] }],
-});
-assertEqual(rules.not(rules.eq("role", "guest")), {
-  not: { eq: ["role", "guest"] },
-});
 
-const accessRequest = staticDecisionDataAdapter.toDecisionRequest({
-  rule: canAccess,
-  input: user,
+assertEqual(ivaRule, {
+  and: [
+    { gte: ["creditProfile.surplus", 50] },
+    { gte: ["creditProfile.totalUnsecuredDebt", 6000] },
+    { gte: ["decisionInputs.repaymentTermYears", 4.9] },
+  ],
 });
 
-assert(engine.evaluateExpr(isAdult, user));
-assert(engine.evaluateExpr(rules.lte("age", 65), user));
-assert(engine.evaluateExpr(rules.lte("age", 21), user) === false);
-assert(engine.evaluateExpr(rules.gt("age", 21), user));
-assert(engine.evaluateExpr(rules.gt("age", 28), user) === false);
-assert(engine.evaluateExpr(rules.lt("age", 65), user));
-assert(engine.evaluateExpr(rules.lt("age", 28), user) === false);
-assert(engine.evaluateExpr(rules.eq("role", "guest"), user) === false);
-assert(engine.evaluateExpr(rules.neq("role", "guest"), user));
-assert(engine.evaluateExpr(rules.neq("role", "admin"), user) === false);
-assert(engine.evaluateExpr(rules.in("write", "permissions"), user));
-assert(engine.evaluateExpr(rules.in("admin", "permissions"), user) === false);
-assert(engine.evaluateExpr(rules.contains("permissions", "write"), user));
-assert(engine.evaluateExpr(rules.contains("permissions", "admin"), user) === false);
-assert(engine.evaluateExpr(rules.exists("email"), user));
-assert(engine.evaluateExpr(rules.exists("missing"), user) === false);
-assert(engine.evaluateExpr(rules.exists("account.deletedAt"), user) === false);
-assert(engine.evaluateExpr(canAccessAccount, user));
-assert(
-  engine.evaluateExpr(rules.eq("account.status", "disabled"), user) === false,
-);
-assert(engine.evaluateExpr(rules.gte("account.loginCount", 10), user));
-assert(
-  engine.evaluateExpr(
-    rules.or(rules.eq("role", "guest"), rules.eq("role", "admin")),
-    user,
-  ),
-);
-assert(
-  engine.evaluateExpr(
-    rules.or(rules.eq("role", "guest"), rules.eq("role", "owner")),
-    user,
-  ) === false,
-);
-assert(engine.evaluateExpr(rules.not(rules.eq("role", "guest")), user));
-assert(engine.evaluateExpr(rules.not(rules.eq("role", "admin")), user) === false);
+const ivaRequest = staticDecisionDataAdapter.toDecisionRequest({
+  rule: ivaRule,
+  input: debtDecisionInput,
+});
 
-console.log(engine.evaluateExpr(accessRequest.rule, accessRequest.input)); // true
+assert(engine.evaluateExpr(ivaRequest.rule, ivaRequest.input));
+assert(
+  recommendDebtSolution({
+    ...debtDecisionInput,
+    creditProfile: {
+      surplus: 20,
+      totalUnsecuredDebt: 12000,
+    },
+  }) === "Useful Guide",
+);
+assert(
+  recommendDebtSolution({
+    ...debtDecisionInput,
+    creditProfile: {
+      surplus: 125,
+      totalUnsecuredDebt: 12000,
+    },
+  }) === "IVA",
+);
+assert(
+  recommendDebtSolution({
+    ...debtDecisionInput,
+    creditProfile: {
+      surplus: 100,
+      totalUnsecuredDebt: 4000,
+    },
+    decisionInputs: {
+      repaymentTermYears: 3.3,
+    },
+  }) === "DMP",
+);
+
+function recommendDebtSolution(
+  input: typeof debtDecisionInput,
+): DebtSolutionRecommendation {
+  if (engine.evaluateExpr(usefulGuideRule, input)) {
+    return "Useful Guide";
+  }
+
+  if (engine.evaluateExpr(ivaRule, input)) {
+    return "IVA";
+  }
+
+  if (engine.evaluateExpr(dmpRule, input)) {
+    return "DMP";
+  }
+
+  return "Useful Guide";
+}
+
+console.log(recommendDebtSolution(debtDecisionInput)); // IVA

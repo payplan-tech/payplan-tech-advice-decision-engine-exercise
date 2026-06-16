@@ -384,16 +384,16 @@ function defaultConditionForOperator(
     case "lte":
     case "gt":
     case "lt":
-      return { operator, field: "age", value: 18 };
+      return { operator, field: "creditProfile.surplus", value: 35 };
     case "eq":
     case "neq":
-      return { operator, field: "role", value: "admin" };
+      return { operator, field: "vulcanId", value: "VUL-12345" };
     case "in":
-      return { operator, item: "write", field: "permissions" };
+      return { operator, item: "Example Bank", field: "debts.creditorNames" };
     case "contains":
-      return { operator, field: "permissions", item: "write" };
+      return { operator, field: "debts.creditorNames", item: "Example Bank" };
     case "exists":
-      return { operator, field: "email" };
+      return { operator, field: "creditProfile.totalUnsecuredDebt" };
     default: {
       const exhaustive: never = operator;
       return exhaustive;

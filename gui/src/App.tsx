@@ -11,7 +11,7 @@ import type { RuleGraph, RuleGraphNode } from "./rule-graph/types";
 function App() {
   const [graph, setGraph] = useState<RuleGraph>(initialRuleGraph);
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(
-    "condition-age",
+    "condition-surplus",
   );
 
   const addNode = (type: RuleGraphNode["type"]) => {
@@ -53,7 +53,7 @@ function App() {
           selectedNodeId={selectedNodeId}
           onGraphChange={setGraph}
         />
-        <EvaluatorPanel graph={graph} />
+        <EvaluatorPanel graph={graph} onGraphChange={setGraph} />
       </div>
     </main>
   );
@@ -98,9 +98,9 @@ function createNode(
         name: "Condition",
         position,
         content: {
-          operator: "eq",
-          field: "role",
-          value: "admin",
+          operator: "gte",
+          field: "creditProfile.surplus",
+          value: 35,
         },
       };
     case "logic":
