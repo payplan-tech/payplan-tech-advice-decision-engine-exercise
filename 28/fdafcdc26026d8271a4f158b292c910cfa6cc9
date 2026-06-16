@@ -1,0 +1,52 @@
+gui/src/assets/vite.svg
+  s_d9b3be94598c4f::t_aec37726f165b6 1
+gui/tsconfig.app.json
+  s_d9b3be94598c4f::t_aec37726f165b6 1-25
+gui/src/index.css
+  s_d9b3be94598c4f::t_aec37726f165b6 1-111
+gui/public/icons.svg
+  s_d9b3be94598c4f::t_aec37726f165b6 1-24
+gui/tsconfig.json
+  s_d9b3be94598c4f::t_aec37726f165b6 1-7
+gui/tsconfig.node.json
+  s_d9b3be94598c4f::t_aec37726f165b6 1-24
+gui/public/favicon.svg
+  s_d9b3be94598c4f::t_aec37726f165b6 1
+gui/src/main.tsx
+  s_d9b3be94598c4f::t_aec37726f165b6 1-10
+gui/vite.config.ts
+  s_d9b3be94598c4f::t_aec37726f165b6 1-7
+gui/src/App.tsx
+  s_d9b3be94598c4f::t_aec37726f165b6 1-122
+gui/index.html
+  s_d9b3be94598c4f::t_aec37726f165b6 1-13
+gui/package.json
+  s_d9b3be94598c4f::t_6c83a4b52727ee 14-15
+  s_d9b3be94598c4f::t_aec37726f165b6 1-13,16-31
+gui/eslint.config.js
+  s_d9b3be94598c4f::t_aec37726f165b6 1-22
+gui/README.md
+  s_d9b3be94598c4f::t_aec37726f165b6 1-73
+gui/src/assets/react.svg
+  s_d9b3be94598c4f::t_aec37726f165b6 1
+gui/src/App.css
+  s_d9b3be94598c4f::t_aec37726f165b6 1-184
+gui/.gitignore
+  s_d9b3be94598c4f::t_aec37726f165b6 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "28fdafcdc26026d8271a4f158b292c910cfa6cc9",
+  "prompts": {},
+  "sessions": {
+    "s_d9b3be94598c4f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8f572959-b64e-4ae1-9130-19a02fa2085c",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
