@@ -1,0 +1,53 @@
+gui/src/rule-graph/compile.ts
+  s_d9b3be94598c4f::t_9b00a1a1b12c32 1-190
+gui/src/App.css
+  s_d9b3be94598c4f::t_1bc1ef23622271 1-7,9-15,17-19,22-181,183-185,187-192,194-197,200-202,204-205,208,210-215,217-254,256-258
+gui/src/rule-graph/sample.ts
+  s_d9b3be94598c4f::t_5edf9ff4018b0a 1-115
+gui/src/components/EvaluatorPanel.tsx
+  s_d9b3be94598c4f::t_12c35fb6d1f0d2 68-75
+  s_d9b3be94598c4f::t_63c1f994d872a3 1-67,76-87
+gui/src/components/RuleCanvas.tsx
+  s_d9b3be94598c4f::t_f92c5188783f60 1-282
+gui/src/rule-graph/types.ts
+  s_d9b3be94598c4f::t_5faf0ebcf3b441 1-131
+gui/src/components/NodeInspector.tsx
+  s_d9b3be94598c4f::t_b575eebd6aa5a3 1,383-387
+  s_d9b3be94598c4f::t_2c1b1be1112c43 2-382,388-428
+gui/src/rule-graph/validation.ts
+  s_d9b3be94598c4f::t_84625e66b93e2d 1-233
+gui/src/rule-graph/fields.ts
+  s_d9b3be94598c4f::t_7ff81fbb86c6a8 1-51,53,55,57-69
+  s_d9b3be94598c4f::t_caaad1d6681f67 52,54,56
+gui/src/App.tsx
+  s_905524bc6dc938::t_6e836a9db3d068 72,154
+  s_905524bc6dc938::t_ff2a01c4c4b31a 18,62-71,74-80,140-153,155-157,160-163
+  s_d9b3be94598c4f::t_3fbb9f11f98832 1-9,12-17,28,31-32,34-35,37-41,43-60,73,81-139,158,166
+  s_905524bc6dc938::t_0ee07d4f56b530 19-27
+gui/src/index.css
+  s_d9b3be94598c4f::t_30c73e6e065b3d 2-6,13,21-25,28-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "3f09c0366405b7b5b17e1a5e6ec820c3557a4ee4",
+  "prompts": {},
+  "sessions": {
+    "s_905524bc6dc938": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "967b8903-e34c-4e10-ab8c-c1d64b952b39",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    },
+    "s_d9b3be94598c4f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8f572959-b64e-4ae1-9130-19a02fa2085c",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
