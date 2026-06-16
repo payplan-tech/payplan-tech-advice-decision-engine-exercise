@@ -1,0 +1,37 @@
+gui/src/App.css
+  s_905524bc6dc938::t_bc4123fce2f6a0 154-189
+gui/src/rule-graph/validation.ts
+  s_905524bc6dc938::t_b1ad4ba3a65614 48-53
+gui/src/components/RuleCanvas.tsx
+  s_905524bc6dc938::t_89ce2f0a5e3846 44-51,263-264,269-270
+  s_afee3b5cd0622d::t_7364f20810be2e 101-102,114-118
+  s_905524bc6dc938::t_5e046942c1f63f 292-299
+  s_905524bc6dc938::t_92cdd6987716b2 103,105-113,119,262,265-268,272-273,278-280
+  s_905524bc6dc938::t_0b9093c5cebe0a 34-37,59-61,162-179,258-261,271,274-277,284-288,290-291,300-310,328-348
+  s_905524bc6dc938::t_b4f62d776a0f37 143
+  s_905524bc6dc938::t_02da5737a305a2 1,204-208
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "ba184e97c0c3c50317d0f1c7432f816cd2907049",
+  "prompts": {},
+  "sessions": {
+    "s_905524bc6dc938": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "967b8903-e34c-4e10-ab8c-c1d64b952b39",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    },
+    "s_afee3b5cd0622d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "040c385d-1aa7-43cc-8316-823789c401ba",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
