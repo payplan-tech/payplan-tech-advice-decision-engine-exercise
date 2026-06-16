@@ -31,6 +31,7 @@ type RuleCanvasProps = {
 type RuleFlowData = {
   graphNode: RuleGraphNode;
   validation: NodeValidation;
+  canCompletePendingConnection: boolean;
   pendingConnectionSourceId?: string;
   onCancelConnection: () => void;
   onCompleteConnection: (targetId: string) => void;
@@ -140,13 +141,7 @@ export function RuleCanvas({
       return false;
     }
 
-    const canConnectInputToCondition =
-      sourceNode.type === "input" && targetNode.type === "condition";
-    const canConnectRuleNodes =
-      (sourceNode.type === "condition" || sourceNode.type === "logic") &&
-      (targetNode.type === "logic" || targetNode.type === "result");
-
-    if (!canConnectInputToCondition && !canConnectRuleNodes) {
+    if (!canConnectNodes(sourceNode, targetNode)) {
       return false;
     }
 
@@ -267,6 +262,9 @@ function graphNodeToFlowNode(
   },
 ): Node<RuleFlowData> {
   const dimensions = ruleNodeDimensions[node.type];
+  const pendingConnectionSource = graph.nodes.find(
+    (candidate) => candidate.id === options.pendingConnectionSourceId,
+  );
 
   return {
     id: node.id,
@@ -277,6 +275,10 @@ function graphNodeToFlowNode(
     selected: node.id === options.selectedNodeId,
     data: {
       graphNode: node,
+      canCompletePendingConnection: pendingConnectionSource
+        ? pendingConnectionSource.id !== node.id &&
+          canConnectNodes(pendingConnectionSource, node)
+        : false,
       onCancelConnection: options.onCancelConnection,
       onCompleteConnection: options.onCompleteConnection,
       onStartConnection: options.onStartConnection,
@@ -288,6 +290,7 @@ function graphNodeToFlowNode(
 
 function RuleNode({ data, selected }: NodeProps<RuleFlowData>) {
   const {
+    canCompletePendingConnection,
     graphNode,
     onCancelConnection,
     onCompleteConnection,
@@ -304,10 +307,6 @@ function RuleNode({ data, selected }: NodeProps<RuleFlowData>) {
     graphNode.type === "condition" ||
     graphNode.type === "logic";
   const isPendingConnectionSource = pendingConnectionSourceId === graphNode.id;
-  const canCompletePendingConnection =
-    Boolean(pendingConnectionSourceId) &&
-    pendingConnectionSourceId !== graphNode.id &&
-    canReceive;
 
   return (
     <div
@@ -359,6 +358,19 @@ function RuleNode({ data, selected }: NodeProps<RuleFlowData>) {
       {canSend && <Handle type="source" position={Position.Right} />}
     </div>
   );
+}
+
+function canConnectNodes(sourceNode: RuleGraphNode, targetNode: RuleGraphNode): boolean {
+  if (sourceNode.type === "input") {
+    return targetNode.type === "condition";
+  }
+
+  const sourceCanConnect =
+    sourceNode.type === "condition" || sourceNode.type === "logic";
+  const targetCanConnect =
+    targetNode.type === "logic" || targetNode.type === "result";
+
+  return sourceCanConnect && targetCanConnect;
 }
 
 function nodeSummary(node: RuleGraphNode): string {
