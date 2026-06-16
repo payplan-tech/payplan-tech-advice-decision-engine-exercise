@@ -1,0 +1,36 @@
+engine.ts
+  h_819c9b6f37e65b 2,15,23,28,34
+rule.ts
+  h_819c9b6f37e65b 1-2,5-15,42,46-57
+  s_a2410271828a14::t_bd1141db320f17 16
+  s_a39da37dcd302a::t_0fc05ab257713a 43-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "8f31438a591b919492dbf1a8c57da87adbc5079c",
+  "prompts": {},
+  "humans": {
+    "h_819c9b6f37e65b": {
+      "author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a2410271828a14": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "6d6d60cc-6195-4d30-a46d-2bdf906619bb",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    },
+    "s_a39da37dcd302a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c953b275-5eed-466d-b30c-9935754177e1",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
