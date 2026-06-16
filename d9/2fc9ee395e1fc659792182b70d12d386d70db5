@@ -1,0 +1,36 @@
+engine.ts
+  s_b4c6c77e6aaa1f::t_764973cbfce196 2-3,5,8-9,11,15-16
+  h_819c9b6f37e65b 47-48,57,61-62
+  s_00f32d96b7ac62::t_855be9e237a752 4,6-7,10,12-14,28-37,42-44,49-56,58-60,63-68,76-80,87-97,102-107
+main.ts
+  s_00f32d96b7ac62::t_5ab9bea25f6d9d 14-15,59-64,72-77,79-80,83-87,92-106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "d92fc9ee395e1fc659792182b70d12d386d70db5",
+  "prompts": {},
+  "humans": {
+    "h_819c9b6f37e65b": {
+      "author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_00f32d96b7ac62": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5290242a-1140-4986-bd48-1aa7561a6f28",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    },
+    "s_b4c6c77e6aaa1f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b8683784-c83f-4e40-b9cd-39f3e8ec9fe0",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
