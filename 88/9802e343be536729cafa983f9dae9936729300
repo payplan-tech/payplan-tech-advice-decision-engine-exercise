@@ -1,0 +1,23 @@
+gui/.gitignore
+  s_88ec5d96c4dc27::t_9dc17304c856c9 11
+gui/vite.config.ts
+  s_88ec5d96c4dc27::t_91c5db45039db9 7
+.github/workflows/deploy-gui.yml
+  s_88ec5d96c4dc27::t_13d97ab7bc1eaf 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "889802e343be536729cafa983f9dae9936729300",
+  "prompts": {},
+  "sessions": {
+    "s_88ec5d96c4dc27": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "da328a68-6091-473f-b472-4a2a2f226731",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
