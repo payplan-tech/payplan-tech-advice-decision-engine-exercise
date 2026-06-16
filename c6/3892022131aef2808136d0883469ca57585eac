@@ -1,0 +1,21 @@
+gui/src/rule-graph/validation.ts
+  s_905524bc6dc938::t_472c656f06b882 24-64
+gui/src/components/EvaluatorPanel.tsx
+  s_905524bc6dc938::t_6410c0aa85117d 4-8,18-20,47,94-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "c63892022131aef2808136d0883469ca57585eac",
+  "prompts": {},
+  "sessions": {
+    "s_905524bc6dc938": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "967b8903-e34c-4e10-ab8c-c1d64b952b39",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
