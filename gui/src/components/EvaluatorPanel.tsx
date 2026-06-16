@@ -1,7 +1,11 @@
 import { engine } from "../../../engine.ts";
 import { compileRuleGraph } from "../rule-graph/compile";
 import { parseJsonObject } from "../rule-graph/fields";
-import { inputFieldsForGraph, validateGraph } from "../rule-graph/validation";
+import {
+  inputFieldsForGraph,
+  inputNodesConnectedToResult,
+  validateGraph,
+} from "../rule-graph/validation";
 import type { RuleGraph } from "../rule-graph/types";
 
 type EvaluatorPanelProps = {
@@ -11,7 +15,9 @@ type EvaluatorPanelProps = {
 export function EvaluatorPanel({ graph }: EvaluatorPanelProps) {
   const validation = validateGraph(graph);
   const compiled = compileRuleGraph(graph);
-  const inputNode = graph.nodes.find((node) => node.type === "input");
+  const connectedInputNodes = inputNodesConnectedToResult(graph);
+  const inputNode =
+    connectedInputNodes.length === 1 ? connectedInputNodes[0] : undefined;
   const sampleInput =
     inputNode?.type === "input" ? parseJsonObject(inputNode.content.sampleJson) : null;
   const result =
@@ -38,7 +44,7 @@ export function EvaluatorPanel({ graph }: EvaluatorPanelProps) {
         <pre>
           {sampleInput
             ? JSON.stringify(sampleInput, null, 2)
-            : "Input node must contain a JSON object."}
+            : sampleInputMessage(connectedInputNodes.length)}
         </pre>
       </section>
 
@@ -84,4 +90,16 @@ export function EvaluatorPanel({ graph }: EvaluatorPanelProps) {
       </section>
     </aside>
   );
+}
+
+function sampleInputMessage(connectedInputCount: number): string {
+  if (connectedInputCount === 0) {
+    return "Connect an input node into the result path to evaluate.";
+  }
+
+  if (connectedInputCount > 1) {
+    return "Result path has multiple connected input nodes. Connect exactly one input.";
+  }
+
+  return "Connected input node must contain a JSON object.";
 }

@@ -21,6 +21,47 @@ export function inputFieldsForGraph(graph: RuleGraph): FieldDefinition[] {
   return inferFields(parsed);
 }
 
+export function inputNodesConnectedToResult(
+  graph: RuleGraph,
+): Extract<RuleGraphNode, { type: "input" }>[] {
+  const resultNode = graph.nodes.find((node) => node.type === "result");
+  if (!resultNode) {
+    return [];
+  }
+
+  const connectedInputIds = new Set<string>();
+  const visitedNodeIds = new Set<string>();
+
+  function walkIncoming(nodeId: string): void {
+    if (visitedNodeIds.has(nodeId)) {
+      return;
+    }
+
+    visitedNodeIds.add(nodeId);
+
+    incomingEdges(graph, nodeId).forEach((edge) => {
+      const sourceNode = graph.nodes.find((node) => node.id === edge.sourceId);
+      if (!sourceNode) {
+        return;
+      }
+
+      if (sourceNode.type === "input") {
+        connectedInputIds.add(sourceNode.id);
+        return;
+      }
+
+      walkIncoming(sourceNode.id);
+    });
+  }
+
+  walkIncoming(resultNode.id);
+
+  return graph.nodes.filter(
+    (node): node is Extract<RuleGraphNode, { type: "input" }> =>
+      node.type === "input" && connectedInputIds.has(node.id),
+  );
+}
+
 export function validateNode(
   node: RuleGraphNode,
   graph: RuleGraph,
