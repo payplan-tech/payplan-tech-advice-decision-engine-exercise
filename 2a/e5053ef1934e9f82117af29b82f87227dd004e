@@ -1,0 +1,49 @@
+ports.ts
+  h_819c9b6f37e65b 18-23
+  s_b0df9dcca45c84::t_bacb4f71085812 1
+lexer.ts
+  h_819c9b6f37e65b 2,53-54,75,133,170,194,244,315,351-356
+  s_8f3dd340b1ca27::t_ba0c43331935cf 31-33,36
+  s_8f3dd340b1ca27::t_d8d40af95e4654 317,319-321
+  s_b0df9dcca45c84::t_325094a49f6526 1
+  s_8f3dd340b1ca27::t_026cbbfc29115b 3-30,34-35,37-52,55-74,76-132,134-169,171-193,195-243,245-314,316,318,322-350
+parser.ts
+  s_b0df9dcca45c84::t_ad32bb19db78d7 1
+  s_b0df9dcca45c84::t_62aa17aa0abe64 2-4,6-7,9-30,32-155,157,159-161
+  h_819c9b6f37e65b 5,8,31,156,158,162
+lexer.test.ts
+  s_8f3dd340b1ca27::t_1a635f7535effe 119,123
+  s_8f3dd340b1ca27::t_2b2bbb08ae84a2 113
+  s_8f3dd340b1ca27::t_6368441c65daa3 1-112,114-118,120-122,124-125
+parser.test.ts
+  s_b0df9dcca45c84::t_3c9315624d3831 1-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "2ae5053ef1934e9f82117af29b82f87227dd004e",
+  "prompts": {},
+  "humans": {
+    "h_819c9b6f37e65b": {
+      "author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_8f3dd340b1ca27": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5501ade0-0003-42f6-b198-db1d43600af7",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    },
+    "s_b0df9dcca45c84": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "03771ae0-9057-4ad5-805b-84766f1a57f7",
+        "model": "default"
+      },
+      "human_author": "Lenard Pratt <l3np27@gmail.com>"
+    }
+  }
+}
