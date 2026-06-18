@@ -1,3 +1,4 @@
+import type { Token } from "./lexer.ts";
 import type { Rule } from "./rule.ts";
 
 export type DecisionInput = Record<string, unknown>;
@@ -13,4 +14,11 @@ export type DecisionInputPort<Raw> = {
 
 export type DecisionEngine = {
   evaluateExpr(rule: Rule, input: DecisionInput): boolean;
+};
+
+export type LexerPort = {
+  toTokens(input: string): Token[];
+  peek(): Token;
+  advance(): Token;
+  isAtEnd(): boolean;
 };
